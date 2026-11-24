@@ -11,28 +11,30 @@ Someone has shuffled the frames of every video in our archive. Put them back in 
 ## How it works
 
 ```mermaid
-flowchart LR
-    A[/"/frames/*.png<br/>shuffled frames"/] --> B
+flowchart TB
+    A[/"/frames/*.png — shuffled frames"/]
 
     subgraph S1["1. Describe each frame"]
+        direction LR
         B["48-px colour thumbnail<br/>(noise averages out)"]
         C["Blockiness of a 256-px<br/>full-resolution crop"]
     end
 
-    B --> D["2. Distance matrix<br/>N x N, one matrix product"]
+    D["2. Distance matrix: N x N, one matrix product"]
 
     subgraph S2["3. Shortest path through all frames"]
-        E["Greedy edge matching<br/>closest pairs first,<br/>max 2 links, no loops"]
-        F["Join the pieces<br/>closest ends first"]
-        G["2-opt + Or-opt<br/>on 12 nearest neighbours"]
-        E --> F --> G
+        direction LR
+        E["Greedy edge matching<br/>closest pairs first,<br/>max 2 links, no loops"] --> F["Join the pieces<br/>closest ends first"] --> G["2-opt + Or-opt<br/>on 12 nearest<br/>neighbours"]
     end
 
-    D --> E
-    G --> H{"4. Which end<br/>is the start?"}
-    C -.-> H
-    H -->|forward| I[/"stdout:<br/>one name per line"/]
-    H -->|reversed| I
+    H{"4. Which end is the start?"}
+    I[/"stdout: one frame name per line"/]
+
+    A --> S1
+    B --> D --> E
+    G --> H
+    C -. "compression cue" .-> H
+    H -- "forward or reversed" --> I
 
     classDef io fill:#e8f1ff,stroke:#3b6fd6,color:#0b2a66
     classDef step fill:#f6f8fa,stroke:#8c959f,color:#1f2328
