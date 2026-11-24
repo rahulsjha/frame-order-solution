@@ -31,8 +31,8 @@ flowchart TB
     I[/"stdout: one frame name per line"/]
 
     A --> S1
-    B --> D --> E
-    G --> H
+    B --> D --> S2
+    S2 --> H
     C -. "compression cue" .-> H
     H -- "forward or reversed" --> I
 
