@@ -83,17 +83,49 @@ Or without Docker: `pip install -r requirements.txt && python order.py path/to/f
 
 ## Results on test videos
 
-The only real video provided is `examples/digits`, which comes out 1, 2, 3, 4, 5. For more
-coverage I generated clips with ffmpeg (moving patterns, a Mandelbrot zoom, a pan over a
-texture, a scene cut), encoded them with H.264, VP9 or MPEG-4, and shuffled the PNGs.
+### The sample video
 
-| Test | Frames | True neighbours kept next to each other | Time |
+The only real video provided is `examples/digits`. The program sees the frames in name
+order (top) and prints them back as 1, 2, 3, 4, 5 (bottom):
+
+![examples/digits: shuffled input and restored output](docs/results/digits.png)
+
+### Generated clips
+
+For more coverage I generated short clips with ffmpeg, encoded them with H.264, decoded
+them to PNG and gave the frames random names. Each GIF shows the frames in the order the
+program receives them (left) next to the order it prints (right):
+
+| Moving test pattern | Mandelbrot zoom |
+|---|---|
+| ![testsrc2: shuffled vs restored](docs/results/testsrc2.gif) | ![mandelbrot: shuffled vs restored](docs/results/mandelbrot.gif) |
+| **Hard scene cut** (test pattern, then Game of Life) | **Camera pan over a texture** |
+| ![scene cut: shuffled vs restored](docs/results/scene-cut.gif) | ![pan: shuffled vs restored, reversed](docs/results/pan.gif) |
+
+The pan shows the open problem: every frame sits next to its true neighbours, but the
+clip plays backwards. Choosing **which end is the start** is right only about 60% of the
+time (see [NOTES.md](NOTES.md)).
+
+### Scores
+
+Kendall's tau is +1 for the exact order and -1 for the exact reverse. "Neighbours kept"
+is the share of true neighbours that end up next to each other, in either direction.
+
+| Clip | Frames | Kendall's tau | Neighbours kept | Direction |
+|---|---|---|---|---|
+| `examples/digits` | 5 | +1.00 | 100% | right |
+| Moving test pattern, 320x240 | 120 | +1.00 | 100% | right |
+| Mandelbrot zoom, 320x240 | 120 | +1.00 | 100% | right |
+| Hard scene cut, 320x240 | 120 | +1.00 | 100% | right |
+| Camera pan, 320x240 | 120 | -1.00 | 100% | reversed |
+
+Larger runs from development:
+
+| Test | Frames | Neighbours kept | Time |
 |---|---|---|---|
 | 7 short clips, 320x240 | 150-200 | 100% | 1.5-6 s |
 | Two scenes with a hard cut, 640x360 | 1,500 | 100% | 12 s |
 | Camera pan, 1920x1080 | 300 | 100% | 7 s (21 s in Docker) |
-
-Getting **which end is the start** right is the open problem: see [NOTES.md](NOTES.md).
 
 ## Files
 
@@ -103,6 +135,7 @@ Getting **which end is the start** right is the open problem: see [NOTES.md](NOT
 | `Dockerfile`, `requirements.txt` | `python:3.12-slim` with numpy and Pillow |
 | `NOTES.md` | What I tried and where it still goes wrong |
 | `examples/digits/` | The sample video from the task |
+| `docs/results/` | The result GIFs and image shown above |
 
 ---
 
